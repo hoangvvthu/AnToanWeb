@@ -31,6 +31,18 @@ public class User {
 	@Column(unique = true)
 	private String id_card;
 
+	// Số lần nhập sai mật khẩu (tối đa 5)
+	@Column(nullable = false)
+	private int failedLoginAttempts = 0;
+
+	// Thời điểm bị khóa tài khoản
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lockoutTime;
+
+	// Tài khoản có bị khóa không
+	@Column(nullable = false)
+	private Boolean isLocked = false;
+
 	@Column(unique = true)
 	private String email;
 

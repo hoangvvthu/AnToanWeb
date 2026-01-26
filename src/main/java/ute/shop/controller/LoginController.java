@@ -50,8 +50,10 @@ public class LoginController extends HttpServlet {
 		// Gọi UserService để kiểm tra thông tin đăng nhập
 		IUserService service = new UserServiceImpl();
 		User user = service.login(email, hashedPassword);
-		
-		if (user != null ) {
+
+		try {
+			
+
 			// Lưu thông tin người dùng vào session
 			HttpSession session = req.getSession(true);
 			session.setAttribute("account", user);
@@ -68,9 +70,9 @@ public class LoginController extends HttpServlet {
 			} else {
 				resp.sendRedirect(req.getContextPath() + "/home"); // Chuyển hướng đến trang người dùng
 			}
-		} else {
-			// Xử lý khi đăng nhập thất bại
-			alertMsg = "Tài khoản hoặc mật khẩu không đúng";
+		} catch (RuntimeException e) {
+			// Xử lý khi đăng nhập thất bại - hiển thị thông báo chi tiết
+			alertMsg = e.getMessage();
 			req.setAttribute("alert", alertMsg);
 			req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
 		}

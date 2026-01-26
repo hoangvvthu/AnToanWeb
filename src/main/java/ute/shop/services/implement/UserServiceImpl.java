@@ -14,18 +14,43 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public User login(String email, String password) {
-		try {
-			User user = userDao.findByEmail(email);
-			if (user == null) {
-				throw new RuntimeException("Email does not exist");
-			}
-			if (!user.getPassword().equals(password)) {
-				throw new RuntimeException("Invalid password");
-			}
-			return user; // Successful login
-		} catch (Exception e) {
-			throw new RuntimeException("Error during login", e);
+		User user = userDao.findByEmail(email);
+
+		// Kiểm tra user tồn tại
+		if (user == null) {
+			throw new RuntimeException("Email does not exist");
 		}
+
+		// Kiểm tra tài khoản bị khóa
+		if (user.getIsLocked()) {
+			// Kiểm tra đã hết thời gian khóa chưa (30 phút)
+			if (user.getLockoutTime() != null) {
+				long lockDuration = System.currentTimeMillis() - user.getLockoutTime().getTime();
+				if (lockDuration < 30 * 60 * 1000) { // 30 phút
+					throw new RuntimeException("Tài khoản bị khóa. Vui lòng thử lại sau 30 phút");
+				} else {
+					// Hết thời gian khóa -> mở khóa
+					user.setIsLocked(false);
+					user.setFailedLoginAttempts(0);
+					user.setLockoutTime(null);
+					userDao.update(user);
+				}
+			}
+		}
+
+		// Kiểm tra mật khẩu
+		if (!user.getPassword().equals(password)) {
+			incrementFailedAttempts(email);
+			int remaining = 5 - user.getFailedLoginAttempts() - 1;
+			if (remaining <= 0) {
+				throw new RuntimeException("Tài khoản đã bị khóa do nhập sai quá 5 lần");
+			}
+			throw new RuntimeException("Mật khẩu sai. Còn " + remaining + " lần thử");
+		}
+
+		// Login thành công -> reset counter
+		resetFailedAttempts(email);
+		return user;
 	}
 
 	@Override
@@ -62,24 +87,52 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public List<Object[]> findTopUser() {
-		
+
 		return userDao.findTopUser();
 	}
-/*
+
 	@Override
-	public User login1(String email, String rawPassword) {
-		try {
-			User user = userDao.findByEmail(email);
-			if (user == null) {
-				throw new RuntimeException("Email does not exist");
+	public void incrementFailedAttempts(String email) {
+		User user = userDao.findByEmail(email);
+		if (user != null) {
+			int attempts = user.getFailedLoginAttempts() + 1;
+			user.setFailedLoginAttempts(attempts);
+
+			// Nếu đã sai 5 lần -> khóa tài khoản
+			if (attempts >= 5) {
+				user.setIsLocked(true);
+				user.setLockoutTime(new java.util.Date());
 			}
-			if (!BCryptUtils.checkPassword(rawPassword, user.getPassword())) {
-				throw new RuntimeException("Invalid password");
-			}
-			return user; // Successful login
-		} catch (Exception e) {
-			throw new RuntimeException("Error during login", e);
+
+			userDao.update(user);
 		}
 	}
-*/
+
+	@Override
+	public void resetFailedAttempts(String email) {
+		User user = userDao.findByEmail(email);
+		if (user != null) {
+			user.setFailedLoginAttempts(0);
+			user.setIsLocked(false);
+			user.setLockoutTime(null);
+			userDao.update(user);
+		}
+	}
+	/*
+	 * @Override
+	 * public User login1(String email, String rawPassword) {
+	 * try {
+	 * User user = userDao.findByEmail(email);
+	 * if (user == null) {
+	 * throw new RuntimeException("Email does not exist");
+	 * }
+	 * if (!BCryptUtils.checkPassword(rawPassword, user.getPassword())) {
+	 * throw new RuntimeException("Invalid password");
+	 * }
+	 * return user; // Successful login
+	 * } catch (Exception e) {
+	 * throw new RuntimeException("Error during login", e);
+	 * }
+	 * }
+	 */
 }

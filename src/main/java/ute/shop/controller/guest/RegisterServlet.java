@@ -44,11 +44,12 @@ public class RegisterServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         // Lấy thông tin từ form
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        String rePassword = request.getParameter("re-password");
-        String firstname = request.getParameter("firstname");
-        String lastname = request.getParameter("lastname");
+        String email = request.getParameter("email") != null ? request.getParameter("email").trim() : "";
+        String password = request.getParameter("password") != null ? request.getParameter("password").trim() : "";
+        String rePassword = request.getParameter("re-password") != null ? request.getParameter("re-password").trim()
+                : "";
+        String firstname = request.getParameter("firstname") != null ? request.getParameter("firstname").trim() : "";
+        String lastname = request.getParameter("lastname") != null ? request.getParameter("lastname").trim() : "";
 
         // Kiểm tra mật khẩu nhập lại
         if (!password.equals(rePassword)) {
@@ -56,6 +57,16 @@ public class RegisterServlet extends HttpServlet {
             request.getRequestDispatcher("/views/register.jsp").forward(request, response);
             return;
         }
+
+        // Kiểm tra độ mạnh mật khẩu (Ít nhất 1 hoa, 1 số, 1 đặc biệt, 8 ký tự)
+        String passwordPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            request.setAttribute("message",
+                    "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ hoa, 1 số và 1 ký tự đặc biệt (@$!%*?&)");
+            request.getRequestDispatcher("/views/register.jsp").forward(request, response);
+            return;
+        }
+
         String hashedPassword = md5.md5Hex(password);
 
         // Tạo đối tượng User mới
