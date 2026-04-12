@@ -1,5 +1,3 @@
 target/
-<<<<<<< HEAD
-=======
-src/main/resources/META-INF/persistence.xml
->>>>>>> dev_admin
+.local/
+

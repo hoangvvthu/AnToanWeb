@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ute.shop.entity.Product;
-import ute.shop.entity.Product_;
 import ute.shop.entity.Store;
 import ute.shop.entity.User;
 import ute.shop.services.IProductService;

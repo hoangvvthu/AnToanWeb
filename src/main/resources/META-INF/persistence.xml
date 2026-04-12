@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+
+    <persistence-unit name="dataSource" transaction-type="RESOURCE_LOCAL">
+        <!-- Liệt kê các class Entity của bạn ở đây nếu cần thiết, ví dụ: -->
+        <!-- <class>ute.shop.entity.User</class> -->
+
+        <properties>
+            <!-- 1. Thông tin kết nối Database -->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/projectfinal?createDatabaseIfNotExist=true&amp;useSSL=false"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <!-- THAY ĐỔI MẬT KHẨU BÊN DƯỚI CHO KHỚP VỚI MYSQL CỦA BẠN -->
+            <property name="jakarta.persistence.jdbc.password" value="mat_khau"/>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+
+            <!-- 2. Cấu hình tự động sinh Database (QUAN TRỌNG NHẤT) -->
+            <!-- 'update': tự động tạo bảng nếu chưa có, và cập nhật cột nếu code thay đổi -->
+            <!-- 'create': xóa sạch bảng cũ và tạo lại mới hoàn toàn mỗi khi chạy -->
+            <property name="jakarta.persistence.schema-generation.database.action" value="update"/>
+
+            <!-- 3. Cấu hình hiển thị log SQL để dễ debug -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.highlight_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
