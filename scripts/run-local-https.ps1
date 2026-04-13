@@ -71,11 +71,11 @@ try {
     # --- Ket thuc giai phong port ---
 
     $url = "https://localhost:$Port/uteshop/home"
-    Write-Host "========================================================" -ForegroundColor Cyan
+    Write-Host "================================================================" -ForegroundColor Cyan
     Write-Host "  Khoi dong UTESHOP voi HTTPS qua Cargo..." -ForegroundColor Green
     Write-Host "  Trang web dang chay tai: " -NoNewline
     Write-Host $url -ForegroundColor Yellow
-    Write-Host "========================================================" -ForegroundColor Cyan
+    Write-Host "================================================================" -ForegroundColor Cyan
 
     # Background job: doi server san sang -> warm up Hibernate -> mo trinh duyet
     $watcherJob = Start-Job -ScriptBlock {
