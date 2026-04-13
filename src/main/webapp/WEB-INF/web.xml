@@ -3,12 +3,17 @@
   <filter>
     <filter-name>sitemesh</filter-name>
     <filter-class>org.sitemesh.config.ConfigurableSiteMeshFilter</filter-class>
+    <!-- Tell SiteMesh where the config file is -->
+    <init-param>
+      <param-name>configFile</param-name>
+      <param-value>/WEB-INF/sitemesh3.xml</param-value>
+    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>sitemesh</filter-name>
-    
+
     <url-pattern>/*</url-pattern>
-    
+
   </filter-mapping>
   <display-name>user</display-name>
   <welcome-file-list>
@@ -23,4 +28,14 @@
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
+  <error-page>
+    <error-code>500</error-code>
+    <location>/views/500.jsp</location>
+  </error-page>
+
+  <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
+    <location>/views/500.jsp</location>
+  </error-page>
 </web-app>
+

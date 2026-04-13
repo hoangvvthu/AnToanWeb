@@ -3,7 +3,8 @@ param(
     [int]$Port = 8443,
     [int]$RmiPort = 8205,
     [int]$MaxWaitSeconds = 300,
-    [int]$RetryDelaySec = 5
+    [int]$RetryDelaySec = 5,
+    [switch]$Clean
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,7 +20,39 @@ try {
         & (Join-Path $PSScriptRoot "create-local-keystore.ps1") -StorePassword $StorePassword -KeystorePath $keystorePath
     }
 
-    # --- Giai phong port truoc khi chay ---
+    function Test-ListenerOnPort {
+        param([int]$PortNum)
+
+        $listener = Get-NetTCPConnection -LocalPort $PortNum -State Listen -ErrorAction SilentlyContinue
+        return ($null -ne $listener)
+    }
+
+    function Invoke-MavenCommand {
+        param([string[]]$Arguments)
+
+        & mvn @Arguments
+        if ($LASTEXITCODE -ne 0) {
+            throw "Maven command failed: mvn $($Arguments -join ' ')"
+        }
+    }
+
+    $httpsRunning = Test-ListenerOnPort -PortNum $Port
+    $rmiRunning = Test-ListenerOnPort -PortNum $RmiPort
+    $serverRunning = $httpsRunning -or $rmiRunning
+
+    $mavenArgs = @(
+        "-DskipTests",
+        "-Plocal-https",
+        "-Dcargo.https.port=$Port",
+        "-Dcargo.rmi.port=$RmiPort",
+        "-Dcargo.keystore.password=$StorePassword"
+    )
+
+    if ($Clean) {
+        $mavenArgs += "clean"
+    }
+
+    # --- Giai phong port chi khi can start server moi ---
     function Stop-ProcessOnPort {
         param([int]$PortNum)
         # Dung Get-NetTCPConnection chinh xac hon netstat parsing
@@ -62,6 +95,19 @@ try {
         return $false
     }
 
+    $url = "https://localhost:$Port/uteshop/home"
+    if ($serverRunning) {
+        Write-Host "================================================================" -ForegroundColor Cyan
+        Write-Host "  Tomcat dang chay. Thuc hien package + redeploy..." -ForegroundColor Green
+        Write-Host "  URL: " -NoNewline
+        Write-Host $url -ForegroundColor Yellow
+        Write-Host "================================================================" -ForegroundColor Cyan
+        Write-Host ""
+
+        Invoke-MavenCommand -Arguments ($mavenArgs + @("package", "cargo:redeploy"))
+        return
+    }
+
     Write-Host "  [*] Kiem tra va giai phong cung port $Port (HTTPS) va $RmiPort (RMI)..." -ForegroundColor DarkGray
     Stop-ProcessOnPort -PortNum $Port
     Stop-ProcessOnPort -PortNum $RmiPort
@@ -70,7 +116,6 @@ try {
     Start-Sleep -Seconds 1
     # --- Ket thuc giai phong port ---
 
-    $url = "https://localhost:$Port/uteshop/home"
     Write-Host "================================================================" -ForegroundColor Cyan
     Write-Host "  Khoi dong UTESHOP voi HTTPS qua Cargo..." -ForegroundColor Green
     Write-Host "  Trang web dang chay tai: " -NoNewline
@@ -121,7 +166,7 @@ public class WaseTrustAll : ICertificatePolicy {
     Write-Host ""
 
     # Chay Cargo o foreground (giu nguyen output, giu server song)
-    & mvn "-Plocal-https" "-Dcargo.https.port=$Port" "-Dcargo.rmi.port=$RmiPort" "-Dcargo.keystore.password=$StorePassword" "clean" "package" "cargo:run"
+    Invoke-MavenCommand -Arguments ($mavenArgs + @("package", "cargo:run"))
 }
 finally {
     if ($null -ne $watcherJob) {

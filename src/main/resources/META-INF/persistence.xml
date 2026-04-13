@@ -9,10 +9,10 @@
 
         <properties>
             <!-- 1. Thông tin kết nối Database -->
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/projectfinal?createDatabaseIfNotExist=true&amp;useSSL=false"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/projectfinal?createDatabaseIfNotExist=true&amp;useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC"/>
             <property name="jakarta.persistence.jdbc.user" value="root"/>
             <!-- THAY ĐỔI MẬT KHẨU BÊN DƯỚI CHO KHỚP VỚI MYSQL CỦA BẠN -->
-            <property name="jakarta.persistence.jdbc.password" value="......."/>
+            <property name="jakarta.persistence.jdbc.password" value="....."/>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
 
             <!-- 2. Cấu hình tự động sinh Database (QUAN TRỌNG NHẤT) -->

@@ -11,15 +11,15 @@
 </head>
 <body>
 	<h1 class="search-title">Tìm kiếm cửa hàng</h1>
-	<p class="search-results">Kết quả cho từ khóa: "${keywords}"</p>
+	<p class="search-results">Kết quả cho từ khóa: "<c:out value="${keywords}" />"</p>
 
 	<div class="store-list-container">
 		<c:forEach var="store" items="${stores}">
 			<div class="store-card-item">
-				<img src="${pageContext.request.contextPath}/images/store/${store.avatar}" alt="${store.name}"
+				<img src="${pageContext.request.contextPath}/images/store/${store.avatar}" alt="<c:out value="${store.name}"/>"
 					class="store-avatar-image">
-				<h2 class="store-name">${store.name}</h2>
-				<p class="store-bio">${store.bio}</p>
+				<h2 class="store-name"><c:out value="${store.name}"/></h2>
+				<p class="store-bio"><c:out value="${store.bio}"/></p>
 				<a
 					href="${pageContext.request.contextPath}/home/storeDetail?id=${store._id}"
 					class="store-detail-link">Xem chi tiết</a>
@@ -29,15 +29,27 @@
 
 	<div class="pagination-container">
 		<c:if test="${currentPage > 1}">
-			<a href="?keywords=${keywords}&page=${currentPage - 1}"
+			<c:url var="storePrevUrl" value="/home/searchStore">
+				<c:param name="keywords" value="${keywords}"/>
+				<c:param name="page" value="${currentPage - 1}"/>
+			</c:url>
+			<a href="${storePrevUrl}"
 				class="pagination-link">Previous</a>
 		</c:if>
 		<c:forEach begin="1" end="${totalPages}" var="page">
-			<a href="?keywords=${keywords}&page=${page}"
+			<c:url var="storePageUrl" value="/home/searchStore">
+				<c:param name="keywords" value="${keywords}"/>
+				<c:param name="page" value="${page}"/>
+			</c:url>
+			<a href="${storePageUrl}"
 				class="pagination-number">${page}</a>
 		</c:forEach>
 		<c:if test="${currentPage < totalPages}">
-			<a href="?keywords=${keywords}&page=${currentPage + 1}"
+			<c:url var="storeNextUrl" value="/home/searchStore">
+				<c:param name="keywords" value="${keywords}"/>
+				<c:param name="page" value="${currentPage + 1}"/>
+			</c:url>
+			<a href="${storeNextUrl}"
 				class="pagination-link">Next</a>
 		</c:if>
 	</div>

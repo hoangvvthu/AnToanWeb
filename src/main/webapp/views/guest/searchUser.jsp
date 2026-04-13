@@ -8,11 +8,11 @@
     <title>Search Results</title>
 </head>
 <body>
-    <h2 class="header-title">Kết quả tìm kiếm người dùng : "${keywords}"</h2>
+    <h2 class="header-title">Kết quả tìm kiếm người dùng : "<c:out value="${keywords}"/>"</h2>
 
     <!-- Bộ lọc -->
     <form action="${pageContext.request.contextPath}/home/searchUser" method="get" class="filter-form">
-        <input type="hidden" name="keywords" value="${param.keywords}">
+        <input type="hidden" name="keywords" value="<c:out value="${param.keywords}"/>">
         <label for="onlyVerified" class="filter-label">
             <input type="checkbox" name="onlyVerified" value="true" class="filter-checkbox" ${param.onlyVerified ? 'checked' : ''}> Only Verified Users
         </label>
@@ -25,7 +25,7 @@
             <c:forEach var="user" items="${users}">
                 <li>
                     <a href="${pageContext.request.contextPath}/home/userDetail?id=${user._id}">
-                        ${user.firstname} ${user.lastname}
+                        <c:out value="${user.firstname}"/> <c:out value="${user.lastname}"/>
                     </a>
                 </li>
             </c:forEach>
@@ -38,7 +38,12 @@
             <ul>
                 <c:forEach begin="1" end="${totalPages}" var="i">
                     <li>
-                        <a href="${pageContext.request.contextPath}/home/searchUser?keywords=${param.keywords}&page=${i}&onlyVerified=${param.onlyVerified}">
+                        <c:url var="searchUserPageUrl" value="/home/searchUser">
+                            <c:param name="keywords" value="${param.keywords}"/>
+                            <c:param name="page" value="${i}"/>
+                            <c:param name="onlyVerified" value="${param.onlyVerified}"/>
+                        </c:url>
+                        <a href="${searchUserPageUrl}">
                             ${i}
                         </a>
                     </li>

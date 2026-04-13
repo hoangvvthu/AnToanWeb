@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <sitemesh>
-  <mapping path="/*" decorator="web.jsp"/>
-    
+    <mapping path="/*" decorator="web.jsp"/>
     <mapping path="/user/*" decorator="web.jsp"/>
-  <mapping path="/admin/*" decorator="admin.jsp"/>
-   <mapping path="/v1/api/*" exclude="true"/>
+    <mapping path="/admin/*" decorator="admin.jsp"/>
+    <mapping path="/v1/api/*" exclude="true"/>
+
+    <!-- Exclude cho AJAX endpoint -->
+    <mapping path="/home/productsByCategory" exclude="true"/>
+    <mapping path="/home/productsByCategory/*" exclude="true"/>
+    <mapping path="/views/guest/productList.jsp" exclude="true"/>
 </sitemesh>

@@ -7,10 +7,8 @@ import ute.shop.entity.User;
 public interface IUserService {
 	// Login user with email and password
 	User login(String email, String password);
-	/*
-	 * User login1(String email, String rawPassword);
-	 */
 
+	User login1(String email, String rawPassword);
 	// Update existing user
 	void update(User user);
 

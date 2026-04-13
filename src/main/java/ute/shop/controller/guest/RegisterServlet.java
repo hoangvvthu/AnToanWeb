@@ -67,7 +67,7 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        String hashedPassword = md5.md5Hex(password);
+        String hashedPassword = BCryptUtils.hashPassword(password);
 
         // Tạo đối tượng User mới
         User newUser = new User();

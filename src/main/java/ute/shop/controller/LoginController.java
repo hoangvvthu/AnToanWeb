@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpSession;
 import ute.shop.entity.User;
 import ute.shop.services.IUserService;
 import ute.shop.services.implement.UserServiceImpl;
-import ute.shop.utils.BCryptUtils;
-import ute.shop.utils.md5;
 
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = "/login") // Ensure the URL matches the form action
@@ -32,9 +30,8 @@ public class LoginController extends HttpServlet {
 		resp.setCharacterEncoding("UTF-8");
 		req.setCharacterEncoding("UTF-8");
 
-		String email = req.getParameter("email");
-		String password = req.getParameter("password");
-		String hashedPassword = md5.md5Hex(password);
+		String email = req.getParameter("email") != null ? req.getParameter("email").trim() : "";
+		String password = req.getParameter("password") != null ? req.getParameter("password") : "";
 		boolean isRememberMe = "on".equals(req.getParameter("remember"));
 
 		String alertMsg = "";
@@ -49,10 +46,10 @@ public class LoginController extends HttpServlet {
 
 		// Gọi UserService để kiểm tra thông tin đăng nhập
 		IUserService service = new UserServiceImpl();
-		User user = service.login(email, hashedPassword);
 
 		try {
-			
+			User user = service.login1(email, password);
+
 
 			// Lưu thông tin người dùng vào session
 			HttpSession session = req.getSession(true);

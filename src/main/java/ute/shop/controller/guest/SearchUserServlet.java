@@ -28,10 +28,21 @@ public class SearchUserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String keywords = request.getParameter("keywords");
         boolean onlyVerified = "true".equals(request.getParameter("onlyVerified"));
-        
+
         // Correct handling of page parameter with default value
         String pageParam = request.getParameter("page");
-        int page = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
+        int page = 1;
+
+        try {
+            if (pageParam != null && !pageParam.isEmpty()) {
+                page = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
+
+        if (page < 1) page = 1;
+        if (page > 1000) page = 1000; // tuỳ giới hạn
         int pageSize = 10;
 
         List<User> users = userService.searchUsers(keywords, onlyVerified, page, pageSize);
