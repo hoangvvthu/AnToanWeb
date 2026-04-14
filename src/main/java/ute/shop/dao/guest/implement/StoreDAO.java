@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import ute.shop.entity.Store;
+import java.util.Collections;
 
 public class StoreDAO {
     private final EntityManager em;
@@ -16,6 +17,9 @@ public class StoreDAO {
 
     // Tìm kiếm cửa hàng theo từ khóa
     public List<Store> searchStores(String keywords, int page, int pageSize) {
+        if (keywords == null || keywords.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
         String query = "SELECT s FROM Store s WHERE LOWER(s.name) LIKE :keywords AND s.isActive = true";
         return em.createQuery(query, Store.class)
                 .setParameter("keywords", "%" + keywords.toLowerCase() + "%")
@@ -26,6 +30,9 @@ public class StoreDAO {
 
     // Đếm tổng số cửa hàng phù hợp với từ khóa
     public long countSearchResults(String keywords) {
+        if (keywords == null || keywords.trim().isEmpty()) {
+            return 0L;
+        }
         String query = "SELECT COUNT(s) FROM Store s WHERE LOWER(s.name) LIKE :keywords AND s.isActive = true";
         return em.createQuery(query, Long.class)
                 .setParameter("keywords", "%" + keywords.toLowerCase() + "%")

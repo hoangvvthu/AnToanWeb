@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ute.shop.entity.User;
 import ute.shop.services.*;
 import ute.shop.services.implement.UserServiceImpl;
+import ute.shop.utils.BCryptUtils;
 
 @WebServlet(urlPatterns = "/change-password")
 public class ChangePasswordController extends HttpServlet {
@@ -25,7 +26,11 @@ public class ChangePasswordController extends HttpServlet {
 		User account = (User) req.getSession().getAttribute("account");
 
 		if (account != null) {
-			if (!account.getPassword().equals(oldPassword)) {
+			String storedPassword = account.getPassword();
+			boolean oldPasswordMatched = storedPassword != null && storedPassword.startsWith("$2")
+					? BCryptUtils.checkPassword(oldPassword, storedPassword)
+					: storedPassword != null && storedPassword.equals(oldPassword);
+			if (!oldPasswordMatched) {
 				req.setAttribute("message", "Mật khẩu cũ không chính xác.");
 				req.getRequestDispatcher("/views/account.jsp").forward(req, resp);
 				return;
@@ -38,7 +43,7 @@ public class ChangePasswordController extends HttpServlet {
 			}
 
 			// Cập nhật mật khẩu mới
-			account.setPassword(newPassword);
+			account.setPassword(BCryptUtils.hashPassword(newPassword));
 			userService.update(account);
 
 			// Xóa thông tin người dùng trong session

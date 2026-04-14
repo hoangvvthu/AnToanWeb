@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ute.shop.entity.User;
 import ute.shop.services.*;
 import ute.shop.services.implement.UserServiceImpl;
+import ute.shop.utils.BCryptUtils;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.*;
@@ -36,11 +37,11 @@ public class ForgotPasswordController extends HttpServlet {
 			String newPassword = generateRandomPassword();
 
 			// Cập nhật mật khẩu mới vào cơ sở dữ liệu
-			user.setPassword(newPassword);
+			user.setPassword(BCryptUtils.hashPassword(newPassword));
 			userService.update(user);
 
 			// Gửi email với mật khẩu mới cho người dùng bằng hàm sendEmail
-			sendEmail(user);
+			sendEmail(user, newPassword);
 
 			// Thông báo người dùng kiểm tra email
 			req.setAttribute("message", "Mật khẩu mới đã được gửi vào email của bạn.");
@@ -57,7 +58,7 @@ public class ForgotPasswordController extends HttpServlet {
 	}
 
 	// Phương thức gửi email với mật khẩu mới
-	private void sendEmail(User user) {
+	private void sendEmail(User user, String plainPassword) {
 		boolean test = false;
 		String toEmail = user.getEmail();
 		String fromEmail = "22162015@student.hcmute.edu.vn"; // Thay bằng email của bạn
@@ -81,7 +82,7 @@ public class ForgotPasswordController extends HttpServlet {
 			mess.setFrom(new InternetAddress(fromEmail));
 			mess.setRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
 			mess.setSubject("Comfirm Password");
-			mess.setText("Your new Password is: " + user.getPassword());
+			mess.setText("Your new Password is: " + plainPassword);
 
 			// Gửi email
 			Transport.send(mess);

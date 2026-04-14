@@ -125,10 +125,26 @@ public class UserServiceImpl implements IUserService {
 			if (user == null) {
 				throw new RuntimeException("Email does not exist");
 			}
-			if (!BCryptUtils.checkPassword(rawPassword, user.getPassword())) {
+
+			String storedPassword = user.getPassword();
+			boolean isBcryptPassword = storedPassword != null && storedPassword.startsWith("$2");
+			boolean passwordMatched = isBcryptPassword
+					? BCryptUtils.checkPassword(rawPassword, storedPassword)
+					: storedPassword != null && storedPassword.equals(rawPassword);
+
+			if (!passwordMatched) {
 				throw new RuntimeException("Invalid password");
 			}
+
+			// Tu dong nang cap mat khau cu dang plain text sang BCrypt sau lan dang nhap hop le.
+			if (!isBcryptPassword) {
+				user.setPassword(BCryptUtils.hashPassword(rawPassword));
+				userDao.update(user);
+			}
+
 			return user; // Successful login
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException("Error during login", e);
 		}
