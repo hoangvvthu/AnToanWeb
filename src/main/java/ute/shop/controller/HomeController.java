@@ -2,14 +2,12 @@ package ute.shop.controller;
 import java.io.IOException;
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import ute.shop.config.JPAConfig;
 import ute.shop.dao.guest.implement.CategoryDAO;
 import ute.shop.dao.guest.implement.ProductDAO;
 import ute.shop.entity.Category;
@@ -26,9 +24,8 @@ public class HomeController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        EntityManager em = JPAConfig.getEntityManager();
-        productService = new ProductService(new ProductDAO(em), new CategoryDAO(em));
-        categoryService = new CategoryService(new CategoryDAO(em));
+        productService = new ProductService(new ProductDAO(), new CategoryDAO());
+        categoryService = new CategoryService(new CategoryDAO());
     }
 
     @Override

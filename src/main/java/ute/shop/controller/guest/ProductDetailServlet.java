@@ -1,12 +1,10 @@
 package ute.shop.controller.guest;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ute.shop.config.JPAConfig;
 import ute.shop.dao.guest.implement.CategoryDAO;
 import ute.shop.dao.guest.implement.ProductDAO;
 import ute.shop.dao.guest.implement.ReviewDAO;
@@ -32,10 +30,9 @@ public class ProductDetailServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        EntityManager em = JPAConfig.getEntityManager();
-        productService = new ProductService(new ProductDAO(em), new CategoryDAO(em));
-        reviewService = new ReviewService(new ReviewDAO(em));
-        categoryService = new CategoryService(new CategoryDAO(em));
+        productService = new ProductService(new ProductDAO(), new CategoryDAO());
+        reviewService = new ReviewService(new ReviewDAO());
+        categoryService = new CategoryService(new CategoryDAO());
     }
 
     @Override

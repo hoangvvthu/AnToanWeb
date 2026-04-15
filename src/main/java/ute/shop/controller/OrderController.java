@@ -45,11 +45,11 @@ public class OrderController extends HttpServlet {
 		String action = req.getServletPath();
 
 		switch (action) {
-		case "/orders":
-			showOrderHistory(req, resp);
-			break;
-		default:
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			case "/orders":
+				showOrderHistory(req, resp);
+				break;
+			default:
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 
@@ -58,20 +58,37 @@ public class OrderController extends HttpServlet {
 		String action = req.getServletPath();
 
 		switch (action) {
-		case "/orders/cancel":
-			cancelOrder(req, resp);
-			break;
-		case "/orders/status":
-			updateOrderStatus(req, resp);
-			break;
-		default:
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			case "/orders/cancel":
+				cancelOrder(req, resp);
+				break;
+			case "/orders/status":
+				updateOrderStatus(req, resp);
+				break;
+			default:
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 
 	private void cancelOrder(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		try {
+			Integer currentUserId = (Integer) req.getSession().getAttribute("userId");
+			User currentUser = (User) req.getSession().getAttribute("account");
+			if (currentUserId == null || currentUser == null) {
+				resp.sendRedirect(req.getContextPath() + "/login");
+				return;
+			}
+
 			int orderId = Integer.parseInt(req.getParameter("orderId"));
+			Order order = orderService.findById(orderId);
+			if (order == null) {
+				resp.sendRedirect(req.getContextPath() + "/orders?error=invalid");
+				return;
+			}
+
+			if (!canAccessOrder(currentUserId, currentUser, order)) {
+				resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not allowed to modify this order.");
+				return;
+			}
 
 			boolean isCanceled = orderService.cancelOrder(orderId);
 
@@ -90,8 +107,25 @@ public class OrderController extends HttpServlet {
 
 	private void updateOrderStatus(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		try {
+			Integer currentUserId = (Integer) req.getSession().getAttribute("userId");
+			User currentUser = (User) req.getSession().getAttribute("account");
+			if (currentUserId == null || currentUser == null) {
+				resp.sendRedirect(req.getContextPath() + "/login");
+				return;
+			}
+
 			int orderId = Integer.parseInt(req.getParameter("orderId"));
 			String status = req.getParameter("status");
+			Order order = orderService.findById(orderId);
+			if (order == null) {
+				resp.sendRedirect(req.getContextPath() + "/orders?error=invalid");
+				return;
+			}
+
+			if (!canAccessOrder(currentUserId, currentUser, order)) {
+				resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not allowed to modify this order.");
+				return;
+			}
 
 			if (status == null || status.isEmpty()) {
 				resp.sendRedirect(req.getContextPath() + "/orders?error=invalid-status");
@@ -130,5 +164,12 @@ public class OrderController extends HttpServlet {
 			e.printStackTrace();
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to fetch order history.");
 		}
+	}
+
+	private boolean canAccessOrder(Integer currentUserId, User currentUser, Order order) {
+		if (order.getUser() != null && order.getUser().get_id() == currentUserId) {
+			return true;
+		}
+		return currentUser.getRole() == User.Role.ADMIN;
 	}
 }

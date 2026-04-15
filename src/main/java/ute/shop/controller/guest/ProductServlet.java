@@ -1,13 +1,11 @@
 package ute.shop.controller.guest;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ute.shop.config.JPAConfig;
 import ute.shop.dao.guest.implement.CategoryDAO;
 import ute.shop.dao.guest.implement.ProductDAO;
 import ute.shop.entity.Product;
@@ -21,10 +19,9 @@ public class ProductServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private ProductService productService;
 
-   
+    
     public ProductServlet() {
-        EntityManager em = JPAConfig.getEntityManager();
-        productService = new ProductService(new ProductDAO(em), new CategoryDAO(em));
+        productService = new ProductService(new ProductDAO(), new CategoryDAO());
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

@@ -1,12 +1,10 @@
 package ute.shop.controller.guest;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ute.shop.config.JPAConfig;
 import ute.shop.dao.guest.implement.StoreDAO;
 import ute.shop.entity.Store;
 //import ute.shop.utils.Page;
@@ -25,8 +23,7 @@ public class SearchStoreServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        EntityManager em = JPAConfig.getEntityManager();
-        storeService = new StoreService(new StoreDAO(em));
+        storeService = new StoreService(new StoreDAO());
     }
 
     @Override
